@@ -13,7 +13,8 @@ mongo = PyMongo(app)
 @app.route('/')
 def index():
     if 'username' in session:
-        return 'You are logged in as ' + session['username']
+        #return 'You are logged in as ' + session['username']
+        return render_template('home.html')
 
     return render_template('index.html')
 
@@ -23,7 +24,8 @@ def login():
     login_user = users.find_one({'username' : request.form['username']})
 
     if login_user:
-        if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password'].encode('utf-8')) == login_user['password'].encode('utf-8'):
+        #if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password'].encode('utf-8')) == login_user['password'].encode('utf-8'):
+        if bcrypt.hashpw(bytes(request.form['pass'], 'utf-8'), bytes(login_user['password'],'utf-8')) == login_user['password'].encode('utf-8'):
             session['username'] = request.form['username']
             return redirect(url_for('index'))
 
@@ -36,7 +38,8 @@ def register():
         existing_user = users.find_one({'username' : request.form['username']})
 
         if existing_user is None:
-            hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
+            #hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
+            hashpass = bcrypt.hashpw(bytes(request.form['pass'], 'utf-8'), bcrypt.gensalt())
             users.insert({'firstname' : request.form['firstname'],'lastname' : request.form['lastname'], 'username' : request.form['username'], 'password' : hashpass})
             session['username'] = request.form['username']
             return redirect(url_for('index'))
